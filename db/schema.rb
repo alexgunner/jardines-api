@@ -12,11 +12,8 @@
 
 ActiveRecord::Schema.define(version: 20171024153528) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "aggregated_user_data", force: :cascade do |t|
-    t.bigint "user_id"
+    t.integer "user_id"
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -28,14 +25,14 @@ ActiveRecord::Schema.define(version: 20171024153528) do
     t.string "id_number"
     t.string "email"
     t.string "nationality"
-    t.bigint "room_reservation_id"
+    t.integer "room_reservation_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["room_reservation_id"], name: "index_booking_guests_on_room_reservation_id"
   end
 
   create_table "booking_invoices", force: :cascade do |t|
-    t.bigint "reservation_id"
+    t.integer "reservation_id"
     t.integer "total"
     t.integer "status"
     t.datetime "created_at", null: false
@@ -44,7 +41,7 @@ ActiveRecord::Schema.define(version: 20171024153528) do
   end
 
   create_table "booking_prices", force: :cascade do |t|
-    t.bigint "room_id"
+    t.integer "room_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status"
@@ -54,7 +51,7 @@ ActiveRecord::Schema.define(version: 20171024153528) do
   end
 
   create_table "booking_reservations", force: :cascade do |t|
-    t.bigint "user_id"
+    t.integer "user_id"
     t.date "start_date"
     t.date "end_date"
     t.integer "arrival_time"
@@ -67,9 +64,9 @@ ActiveRecord::Schema.define(version: 20171024153528) do
   end
 
   create_table "booking_room_reservations", force: :cascade do |t|
-    t.bigint "room_id"
-    t.bigint "price_id"
-    t.bigint "reservation_id"
+    t.integer "room_id"
+    t.integer "price_id"
+    t.integer "reservation_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["price_id"], name: "index_booking_room_reservations_on_price_id"
@@ -86,7 +83,7 @@ ActiveRecord::Schema.define(version: 20171024153528) do
   end
 
   create_table "booking_status_change_messages", force: :cascade do |t|
-    t.bigint "status_change_id"
+    t.integer "status_change_id"
     t.text "body"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -97,7 +94,7 @@ ActiveRecord::Schema.define(version: 20171024153528) do
     t.integer "old_status"
     t.integer "new_status"
     t.string "object_type"
-    t.bigint "object_id"
+    t.integer "object_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["object_type", "object_id"], name: "index_booking_status_changes_on_object_type_and_object_id"
@@ -111,8 +108,8 @@ ActiveRecord::Schema.define(version: 20171024153528) do
   end
 
   create_table "user_roles", force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "role_id"
+    t.integer "user_id"
+    t.integer "role_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["role_id"], name: "index_user_roles_on_role_id"
@@ -125,15 +122,4 @@ ActiveRecord::Schema.define(version: 20171024153528) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "aggregated_user_data", "users"
-  add_foreign_key "booking_guests", "booking_room_reservations", column: "room_reservation_id"
-  add_foreign_key "booking_invoices", "booking_reservations", column: "reservation_id"
-  add_foreign_key "booking_prices", "booking_rooms", column: "room_id"
-  add_foreign_key "booking_reservations", "users"
-  add_foreign_key "booking_room_reservations", "booking_prices", column: "price_id"
-  add_foreign_key "booking_room_reservations", "booking_reservations", column: "reservation_id"
-  add_foreign_key "booking_room_reservations", "booking_rooms", column: "room_id"
-  add_foreign_key "booking_status_change_messages", "booking_status_changes", column: "status_change_id"
-  add_foreign_key "user_roles", "roles"
-  add_foreign_key "user_roles", "users"
 end
