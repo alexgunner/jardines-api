@@ -32,13 +32,12 @@ class ReservationsController < ApplicationController
 	def cancel
 		reservation_pin = params[:pin]
 		reservation_email = params[:email]
-		reservation_reason = params[:reason]
-
-
-		if Booking::Reservation.cancel_reservation(reservation_pin)
-			render json: '{ response: "Reservation cancelled", status: 200 }'	
-		else
-			render json: '{ response: "Reservation not cancelled", status: 201 }'
+		cancellation_reason = params[:reason]
+		
+		if not current_user.nil?
+			@reservation = Booking::Reservation.find_by(reservation_pin)
+			@reservation.cancel cancellation_reason
+			render json:[], status: "Cancelled"
 		end
 		
 	end

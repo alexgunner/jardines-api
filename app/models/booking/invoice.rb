@@ -1,6 +1,7 @@
 class Booking::Invoice < ApplicationRecord
 
   PENDING = 1
+  CANCELLED = 2
 
   belongs_to :reservation
 
@@ -17,6 +18,17 @@ class Booking::Invoice < ApplicationRecord
   	end
 
   	return reservation.invoice
+  end
+  
+  def self.make_cancellation_invoice_for reservation
+    cost_of_cancellation = 0
+    cancellation_date = Date.today
+    free_cancellation_top_date = cancellation_date + Booking::Reservation::CANCELLATION_DAYS.days
+    if free_cancellation_top_date > reservation.start_date
+      cost_of_cancellation = reservation.total
+    end
+    reservation.invoice = Booking::Invoice.create!(total: cost_of_cancellation, status: Booking::Invoice::CANCELLED, reservation: reservation)
+    reservation.save!
   end
 
 end

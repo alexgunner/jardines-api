@@ -8,4 +8,5 @@ module Constants::Booking::Reservation
 	CHECKED_IN 	= 1000005
 	CHECKED_OUT	= 1000006
 
+	CANCELLATION_DAYS = 3
 end

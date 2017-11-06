@@ -54,16 +54,42 @@ RSpec.describe Booking::Reservation, type: :model do
 	end
 
 
-	describe "validates cancellation" do
-
-		context "when user has an account" do
-			before do
-				set_current_user subject.user
-			end
+	describe "#cancelled?" do
+		
+		context "when reservation status is already cancelled" do
+			let(:subject) { create :reservation, status: Booking::Reservation::CANCELLED }
 			
-			it "should cancel the reservation by providing only the PIN" do
-			#	expect(Booking::Reservation.cancel_reservation(subject.pin)).to be_truthy 	
+			it "should return true" do
+				expect(subject.cancelled?).to be true
 			end
+		end
+		
+		context "when reservations status is different from cancelled" do
+			let(:subject) { create :reservation, status: Booking::Reservation::PENDING }
+			it "should return false" do
+				expect(subject.cancelled?).to be false
+			end
+		end
+		
+	end
+	
+	describe "#cancel" do
+		let(:subject) { create :reservation, status: Booking::Reservation::PENDING }
+		
+		it "should create a change status record with the right old status, new status and reference to the reservation" do
+			subject.cancel "I don't want this reservation anymore"
+			status_change = Booking::StatusChange.find_by(object: subject)
+			expect(subject).to eq(status_change.object)
+			expect(status_change.old_status).to eq(Booking::Reservation::PENDING)
+			expect(status_change.new_status).to eq(subject.status)
+		end
+		
+		it "should create a change status message" do
+			subject.cancel "I don't want this reservation anymore"
+			status_change = Booking::StatusChange.find_by(object: subject)
+			status_change_message = Booking::StatusChangeMessage.find_by(status_change: status_change)
+			expect(status_change).to eq(status_change_message.status_change)
+			expect(status_change_message.body).to eq("I don't want this reservation anymore")
 		end
 	end
 

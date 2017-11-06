@@ -22,19 +22,16 @@ class Booking::Reservation < ApplicationRecord
   before_validation :check_status
   before_validation :check_pin
 
-
-  # Function to cancel the reservation
-  def self.cancel_reservation(pin)
-    reservation = Booking::Reservation.find_by(pin: pin)
-
-    if reservation.nil?
-      return false
-    else
-      reservation.change_reservation_status(CANCELLED)
-      #notify_guests
-      #notify_reception
-      return true
-    end
+  def cancelled?
+    self.status == Booking::Reservation::CANCELLED
+  end
+  
+  def cancel message
+    status_change = Booking::StatusChange.create!(old_status: self.status, new_status: Booking::Reservation::CANCELLED, object: self)
+    status_change_message = Booking::StatusChangeMessage.create!(status_change: status_change, body: message)
+    self.status = Booking::Reservation::CANCELLED
+    Booking::Invoice.make_cancellation_invoice_for self
+    self.save
   end
 
   def check_out
