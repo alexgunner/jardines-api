@@ -28,6 +28,33 @@ class ReservationsController < ApplicationController
 
 		render json:[], status: :created
 	end
+	
+	def update
+		reservation_id = params[:reservation_id]
+		reservation = Booking::Reservation.find(reservation_id)
+		
+		Booking::Reservation.transaction do
+
+			raise Exceptions::Booking::NoRoomDataFound if params[:rooms].nil? or params[:rooms].empty?
+
+			reservation.user = reservation_user
+			reservation.save!
+
+			params[:rooms].each do |room_datum|
+				room = Booking::Room.find room_datum[:id]
+				room_guests = filter room_datum[:guests]
+				raise Exceptions::Booking::NoGuestFound if room_guests.nil? or room_guests.size == 0 
+	
+				reservation.add_room! room
+
+				room_guests.each do |guest_datum|
+					reservation.add_guest_with_data! guest_datum, to: room
+				end
+			end
+		end
+
+		render json:[], status: "updated"
+	end
 
 	def cancel
 		reservation_pin = params[:pin]
