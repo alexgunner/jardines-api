@@ -7,7 +7,15 @@ class Reception::ReservationsController < ApplicationController
 	end
 
 	def cancel
+		reservation_pin = params[:pin]
+		reservation_email = params[:email]
+		cancellation_reason = params[:reason]
 		
+		if not current_user.nil?
+			@reservation = Booking::Reservation.find_by(reservation_pin)
+			@reservation.cancel cancellation_reason
+			render json:[], status: "Cancelled"
+		end
 	end
 
 end
